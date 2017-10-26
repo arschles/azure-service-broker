@@ -17,6 +17,10 @@ func update(c *cli.Context) error {
 	port := c.GlobalInt(flagPort)
 	username := c.GlobalString(flagUsername)
 	password := c.GlobalString(flagPassword)
+	instanceID := c.String(flagInstanceID)
+	if instanceID == "" {
+		return fmt.Errorf("--%s is a required flag", flagInstanceID)
+	}
 	serviceID := c.String(flagServiceID)
 	if serviceID == "" {
 		return fmt.Errorf("--%s is a required flag", flagServiceID)
@@ -34,16 +38,16 @@ func update(c *cli.Context) error {
 		value := strings.TrimSpace(tokens[1])
 		params[key] = value
 	}
-	instanceID, err := client.Update(
+	if err := client.Update(
 		host,
 		port,
 		username,
 		password,
+		instanceID,
 		serviceID,
 		planID,
 		params,
-	)
-	if err != nil {
+	); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Printf("\nUpdating service instance %s\n\n", instanceID)

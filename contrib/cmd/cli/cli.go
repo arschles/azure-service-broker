@@ -73,9 +73,14 @@ func main() {
 		{
 			Name:  "update",
 			Usage: "update a existing service instance",
-			UsageText: "broker-cli [global options] provision --service-id " +
-				"<service id> [--plan-id <plan id>] [other command options]",
+			UsageText: "broker-cli [global options] update --instance-id " +
+				"<instance id> --service-id <service id> " +
+				"[--plan-id <plan id>] [other command options]",
 			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  flagsInstanceID,
+					Usage: "specify the `<instance id>`; required",
+				},
 				cli.StringFlag{
 					Name:  flagsServiceID,
 					Usage: "specify the `<service id>`; required",
@@ -86,12 +91,12 @@ func main() {
 				},
 				cli.StringSliceFlag{
 					Name: flagsParameter,
-					Usage: "specify a service-specific provisioning parameter as a k=v " +
+					Usage: "specify a service-specific updating parameter as a k=v " +
 						"pair",
 				},
 				cli.BoolFlag{
 					Name: flagPoll,
-					Usage: "poll the instance for status until provisioning succeeds " +
+					Usage: "poll the instance for status until updating succeeds " +
 						"or fails",
 				},
 			},
