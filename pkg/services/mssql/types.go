@@ -7,23 +7,27 @@ type ProvisioningParameters struct {
 	Location      string            `json:"location"`
 	ServerName    string            `json:"server"`
 	ResourceGroup string            `json:"resourceGroup"`
+	EnableTDE     bool              `json:"enableTDE"`
 	Tags          map[string]string `json:"tags"`
 }
 
 type mssqlProvisioningContext struct {
-	ResourceGroupName          string `json:"resourceGroup"`
-	ARMDeploymentName          string `json:"armDeployment"`
-	ServerName                 string `json:"server"`
-	IsNewServer                bool   `json:"isNewServer"`
-	Location                   string `json:"location"`
-	AdministratorLogin         string `json:"administratorLogin"`
-	AdministratorLoginPassword string `json:"administratorLoginPassword"`
-	DatabaseName               string `json:"database"`
-	FullyQualifiedDomainName   string `json:"fullyQualifiedDomainName"`
+	ResourceGroupName          string            `json:"resourceGroup"`
+	ARMDeploymentName          string            `json:"armDeployment"`
+	ServerName                 string            `json:"server"`
+	IsNewServer                bool              `json:"isNewServer"`
+	Location                   string            `json:"location"`
+	AdministratorLogin         string            `json:"administratorLogin"`
+	AdministratorLoginPassword string            `json:"administratorLoginPassword"` // nolint: lll
+	DatabaseName               string            `json:"database"`
+	FullyQualifiedDomainName   string            `json:"fullyQualifiedDomainName"`
+	Tags                       map[string]string `json:"tags"`
 }
 
 // UpdatingParameters encapsulates MSSQL-specific updating options
 type UpdatingParameters struct {
+	AdministratorLogin         string `json:"administratorLogin"`
+	AdministratorLoginPassword string `json:"administratorLoginPassword"`
 }
 
 // BindingParameters encapsulates MSSQL-specific binding options

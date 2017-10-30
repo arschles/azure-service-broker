@@ -135,7 +135,8 @@ func getMssqlCases(
 			serviceID:   "fb9bc99e-0aa9-11e6-8a8a-000d3a002ed5",
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			provisioningParameters: &mssql.ProvisioningParameters{
-				Location: "southcentralus",
+				Location:  "southcentralus",
+				EnableTDE: true,
 			},
 			bindingParameters: &mssql.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),
@@ -148,6 +149,7 @@ func getMssqlCases(
 			planID:      "3819fdfa-0aaa-11e6-86f4-000d3a002ed5",
 			provisioningParameters: &mssql.ProvisioningParameters{
 				ServerName: serverName,
+				EnableTDE:  true,
 			},
 			bindingParameters: &mssql.BindingParameters{},
 			testCredentials:   testMsSQLCreds(),

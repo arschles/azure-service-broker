@@ -47,6 +47,7 @@ func (m *module) GetProvisioner(string, string) (service.Provisioner, error) {
 	return service.NewProvisioner(
 		service.NewProvisioningStep("preProvision", m.preProvision),
 		service.NewProvisioningStep("deployARMTemplate", m.deployARMTemplate),
+		service.NewProvisioningStep("enableTDE", m.enableTDE),
 	)
 }
 
@@ -72,6 +73,9 @@ func (m *module) preProvision(
 		)
 	}
 
+	pc.ARMDeploymentName = uuid.NewV4().String()
+	pc.DatabaseName = generate.NewIdentifier()
+	pc.Tags = pp.Tags
 	if pp.ServerName == "" {
 		// new server scenario
 		if pp.ResourceGroup != "" {
@@ -79,13 +83,11 @@ func (m *module) preProvision(
 		} else {
 			pc.ResourceGroupName = uuid.NewV4().String()
 		}
-		pc.ARMDeploymentName = uuid.NewV4().String()
 		pc.ServerName = uuid.NewV4().String()
 		pc.IsNewServer = true
 		pc.Location = pp.Location
 		pc.AdministratorLogin = generate.NewIdentifier()
 		pc.AdministratorLoginPassword = generate.NewPassword()
-		pc.DatabaseName = generate.NewIdentifier()
 	} else {
 		// exisiting server scenario
 		servers := m.mssqlConfig.Servers
@@ -98,13 +100,11 @@ func (m *module) preProvision(
 		}
 
 		pc.ResourceGroupName = server.ResourceGroupName
-		pc.ARMDeploymentName = uuid.NewV4().String()
 		pc.ServerName = server.ServerName
 		pc.IsNewServer = false
 		pc.Location = server.Location
 		pc.AdministratorLogin = server.AdministratorLogin
 		pc.AdministratorLoginPassword = server.AdministratorLoginPassword
-		pc.DatabaseName = generate.NewIdentifier()
 
 		// Ensure the server configuration works
 		azureConfig, err := azure.GetConfig()
@@ -150,7 +150,7 @@ func (m *module) deployARMTemplate(
 	if err != nil {
 		return nil, fmt.Errorf("error retrieving catalog: %s", err)
 	}
-	service, ok := catalog.GetService(serviceID)
+	svc, ok := catalog.GetService(serviceID)
 	if !ok {
 		return nil, fmt.Errorf(
 			`service "%s" not found in the "%s" module catalog`,
@@ -158,7 +158,7 @@ func (m *module) deployARMTemplate(
 			m.GetName(),
 		)
 	}
-	plan, ok := service.GetPlan(planID)
+	plan, ok := svc.GetPlan(planID)
 	if !ok {
 		return nil, fmt.Errorf(
 			`plan "%s" not found for service "%s"`,
@@ -222,4 +222,41 @@ func (m *module) deployARMTemplate(
 	}
 
 	return pc, nil
+}
+
+func (m *module) enableTDE(
+	ctx context.Context, // nolint: unparam
+	instanceID string, // nolint: unparam
+	serviceID string, // nolint: unparam
+	planID string, // nolint: unparam
+	provisioningContext service.ProvisioningContext,
+	provisioningParameters service.ProvisioningParameters,
+) (service.ProvisioningContext, error) {
+	pc, ok := provisioningContext.(*mssqlProvisioningContext)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningContext as *mssqlProvisioningContext",
+		)
+	}
+	pp, ok := provisioningParameters.(*ProvisioningParameters)
+	if !ok {
+		return nil, errors.New(
+			"error casting provisioningParameters as " +
+				"*mssql.ProvisioningParameters",
+		)
+	}
+
+	if !pp.EnableTDE {
+		return provisioningContext, nil
+	}
+
+	if err := m.mssqlManager.EnableTransparentDataEncryption(
+		pc.ResourceGroupName,
+		pc.ServerName,
+		pc.DatabaseName,
+	); err != nil {
+		return nil, err
+	}
+
+	return provisioningContext, nil
 }

@@ -61,16 +61,16 @@ func (m *module) deleteMsSQLServerOrDatabase(
 
 	if pc.IsNewServer {
 		if err := m.mssqlManager.DeleteServer(
-			pc.ServerName,
 			pc.ResourceGroupName,
+			pc.ServerName,
 		); err != nil {
 			return pc, fmt.Errorf("error deleting mssql server: %s", err)
 		}
 	} else {
 		if err := m.mssqlManager.DeleteDatabase(
+			pc.ResourceGroupName,
 			pc.ServerName,
 			pc.DatabaseName,
-			pc.ResourceGroupName,
 		); err != nil {
 			return pc, fmt.Errorf("error deleting mssql database: %s", err)
 		}
