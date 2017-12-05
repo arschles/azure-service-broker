@@ -39,7 +39,7 @@ $ kubectl create -f contrib/k8s/examples/postgresql-instance.yaml
 After the `ServiceInstance` resource is submitted, you can view its status:
 
 ```console
-$ svc-cat get instance my-postgresql-instance
+$ svcat get instance my-postgresql-instance
 ```
 
 You'll see output that includes a status to indicate that asynchronous 
@@ -57,7 +57,7 @@ $ kubectl create -f contrib/k8s/examples/postgresql-binding.yaml
 To check the status of the binding:
 
 ```console
-$ svc-cat get binding my-postgresql-binding
+$ svcat get binding my-postgresql-binding
 ```
 
 You'll see some output to indicate that the binding was successful. Once it is,
@@ -97,12 +97,12 @@ $ kubectl delete serviceinstance my-postgresql-instance
 You can observe the status to see that asynchronous deprovisioning is ongoing:
 
 ```console
-$ svc-cat get instance my-postgresql-instance
+$ svcat get instance my-postgresql-instance
 ```
 
 You'll see in the output that asynchronous deprovision is in progress. When
 it's complete, the deletion of the resource will also be complete and
-the `svc-cat get` command will indicate that the instance no longer exists.
+the `svcat get` command will indicate that the instance no longer exists.
 
 ## Getting Started on Cloud Foundry
 
